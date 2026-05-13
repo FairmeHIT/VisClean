@@ -1,6 +1,6 @@
-# SlideClean（幻灯片清痕）
+# pptx-fig-erase - 幻灯片清痕
 
-SlideClean（幻灯片清痕）是一个 Windows 桌面工具，用于打开 PowerPoint 文件，将幻灯片转换为图片，在页面上框选需要擦除的区域，使用 OpenCV 修复背景，并导出处理后的结果。
+幻灯片清痕是一个 Windows 桌面工具，用于打开 PowerPoint 文件，将幻灯片转换为图片，在页面上框选需要擦除的区域，使用 OpenCV 修复背景，并导出处理后的结果。适用于精细化图片水印去除，比如从NotebookLM、豆包、Qwen等AI大模型生成的pptx/图片中去除多余的内容。
 
 ## 功能
 
@@ -39,13 +39,12 @@ python -m venv .venv
 .\.venv\Scripts\pythonw.exe -m app.main
 ```
 
-如果窗口没有出现，或者需要查看报错信息，使用调试启动方式：
+开发时可以使用调试启动方式：
 
 ```powershell
 .\.venv\Scripts\python.exe -m app.main
 ```
 
-程序窗口标题是 `SlideClean`。启动后如果看不到窗口，可以检查任务栏，或使用 `Alt+Tab` 切换。
 
 ## 使用流程
 
@@ -67,56 +66,6 @@ python -m venv .venv
 - `export.pdf`：图片版 PDF
 - `export.pptx`：图片版 PPTX
 
-## 验证 PowerPoint 导出
-
-如果不确定本机 PowerPoint COM 是否可用，可以先运行验证脚本：
-
-```powershell
-$sample = Get-ChildItem -Filter *.pptx | Select-Object -First 1
-.\.venv\Scripts\python.exe tools\validate_powerpoint_export.py $sample.FullName --out validation_output
-```
-
-验证成功后，`validation_output` 目录中应出现导出的幻灯片图片。
-
-## 常见问题
-
-### 启动后没有看到窗口
-
-先检查任务栏或使用 `Alt+Tab`。如果仍然没有窗口，使用调试启动命令查看终端输出：
-
-```powershell
-.\.venv\Scripts\python.exe -m app.main
-```
-
-### 窗口显示不全或跑到屏幕边缘
-
-当前版本启动时会根据屏幕可用区域计算窗口大小，并默认最大化显示。如果仍然显示异常，可以先关闭已有进程，再重新启动：
-
-```powershell
-Get-CimInstance Win32_Process |
-  Where-Object {
-    $_.Name -in @("python.exe", "pythonw.exe") -and
-    $_.CommandLine -match "\s-m\s+app\.main(\s|$)"
-  } |
-  ForEach-Object { Stop-Process -Id $_.ProcessId }
-.\.venv\Scripts\pythonw.exe -m app.main
-```
-
-### 提示缺少依赖
-
-确认已经在项目根目录安装依赖：
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-### 打开 PPTX 后转换失败
-
-确认本机已安装 Microsoft PowerPoint，并且 PowerPoint 可以正常打开目标文件。该工具依赖 PowerPoint COM 自动化，PowerPoint 未安装、未激活、被弹窗阻塞，或目标文件无法正常打开，都会导致转换失败。
-
-### 中文文件名在终端中显示乱码
-
-这通常是终端编码显示问题。建议使用 PowerShell 或支持 UTF-8 的终端，也可以使用 PowerShell 变量、文件选择窗口或 Tab 补全，避免手动输入完整中文文件名。
 
 ## 项目结构
 
@@ -131,12 +80,6 @@ tools/        辅助验证脚本
 ```
 
 ## 运行测试
-
-如果尚未安装 `pytest`：
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install pytest
-```
 
 运行测试：
 
