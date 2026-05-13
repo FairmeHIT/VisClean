@@ -1,0 +1,1 @@
+"""SlideClean application package."""

@@ -1,0 +1,7 @@
+PySide6
+opencv-python
+numpy
+Pillow
+python-pptx
+pywin32
+
