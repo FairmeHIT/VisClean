@@ -26,7 +26,7 @@ jobs:
           pip install -r requirements.txt pytest pyinstaller
 
       - name: Run tests
-        run: pytest tests
+        run: pytest
 
       - name: Build with PyInstaller
         run: pyinstaller --noconfirm SlideClean_build.spec
