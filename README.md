@@ -16,7 +16,9 @@ VisClean 是一个 Windows 桌面工具,用于打开 PowerPoint / PDF / 图片�
 
 ## 界面预览
 
-截图见 [screenshots/](screenshots/) 目录(陆续补充中)。
+![VisClean 主界面](screenshots/screen.png)
+
+更多截图见 [screenshots/](screenshots/) 目录(陆续补充中)。
 
 ## 功能
 
