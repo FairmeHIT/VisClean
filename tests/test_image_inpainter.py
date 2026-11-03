@@ -50,6 +50,50 @@ class ImageInpainterTests(unittest.TestCase):
             erased_region = result[26:38, 36:60]
             self.assertGreater(erased_region.mean(), 220)
 
+    def test_inpaint_file_prefers_immediate_boundary_color(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image_path = root / "page.png"
+            mask_path = root / "mask.png"
+            output_path = root / "output.png"
+
+            image = np.full((48, 48, 3), 30, dtype=np.uint8)
+            image[14:34, 14:34] = 236
+            image[20:28, 20:28] = 20
+            mask = np.zeros((48, 48), dtype=np.uint8)
+            mask[20:28, 20:28] = 255
+
+            Image.fromarray(image).save(image_path)
+            Image.fromarray(mask).save(mask_path)
+
+            inpaint_file(image_path, mask_path, output_path)
+            result = np.array(Image.open(output_path))
+
+            erased_region = result[22:26, 22:26]
+            self.assertGreater(erased_region.mean(), 220)
+
+    def test_inpaint_file_uses_dominant_boundary_color_when_text_crosses_edge(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image_path = root / "page.png"
+            mask_path = root / "mask.png"
+            output_path = root / "output.png"
+
+            image = np.full((48, 48, 3), 255, dtype=np.uint8)
+            image[20:28, 20:28] = 20
+            image[19:29, 27:31] = 0
+            mask = np.zeros((48, 48), dtype=np.uint8)
+            mask[20:28, 20:28] = 255
+
+            Image.fromarray(image).save(image_path)
+            Image.fromarray(mask).save(mask_path)
+
+            inpaint_file(image_path, mask_path, output_path)
+            result = np.array(Image.open(output_path))
+
+            erased_region = result[22:26, 22:26]
+            self.assertGreater(erased_region.mean(), 245)
+
 
 if __name__ == "__main__":
     unittest.main()

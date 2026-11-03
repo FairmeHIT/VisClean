@@ -4,4 +4,4 @@ numpy
 Pillow
 python-pptx
 pywin32
-
+PyMuPDF

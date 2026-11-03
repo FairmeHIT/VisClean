@@ -8,6 +8,11 @@ __pycache__/
 venv/
 env/
 
+# PyInstaller
+dist/
+build/
+*.spec.bak
+
 # Build / tooling caches
 .pytest_cache/
 .mypy_cache/
@@ -20,10 +25,19 @@ data/
 logs/
 docs/
 backup/
+image2pptx_runs/
 
 # Environment overrides
+.key/
+.env
 .env.local
 .env.*.local
+
+# Vendored AI skill (30MB+, 获取方式见 README)
+skills/
+
+# Stray test images
+tests/test_fig.png
 
 # IDE / editor
 .idea/

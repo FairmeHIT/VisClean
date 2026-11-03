@@ -58,9 +58,9 @@ def _inpaint_roi(cv2, image, mask, radius: int | None, algorithm: str):
     selection_width = x2 - x1 + 1
     selection_height = y2 - y1 + 1
     if radius is None:
-        radius = max(7, min(28, round(min(selection_width, selection_height) * 0.08)))
+        radius = max(3, min(16, round(min(selection_width, selection_height) * 0.05)))
 
-    pad = max(radius * 4, 32)
+    pad = max(radius * 2, 8)
     height, width = image.shape[:2]
     left = max(0, x1 - pad)
     top = max(0, y1 - pad)
@@ -90,26 +90,44 @@ def _blend_inpainted_roi(cv2, original, inpainted, mask):
 
 
 def _fill_smooth_background(cv2, roi, mask):
-    ring = _mask_ring(cv2, mask)
+    ring = _mask_boundary_ring(cv2, mask)
     if cv2.countNonZero(ring) < 20:
         return None
 
-    mean, stddev = cv2.meanStdDev(roi, mask=ring)
-    if float(stddev.max()) > 18.0:
+    color = _dominant_boundary_color(roi, ring)
+    if color is None:
         return None
 
     filled = roi.copy()
-    color = mean.reshape(3)
     filled[mask > 0] = color
     return filled
 
 
-def _mask_ring(cv2, mask):
-    kernel_outer = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))
-    kernel_inner = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    outer = cv2.dilate(mask, kernel_outer, iterations=1)
-    inner = cv2.dilate(mask, kernel_inner, iterations=1)
-    return cv2.subtract(outer, inner)
+def _dominant_boundary_color(roi, ring, bucket_size: int = 16, min_share: float = 0.45):
+    try:
+        import numpy as np
+    except ImportError:  # pragma: no cover
+        return None
+
+    pixels = roi[ring > 0]
+    if len(pixels) < 20:
+        return None
+
+    buckets = pixels // bucket_size
+    bucket_keys, counts = np.unique(buckets, axis=0, return_counts=True)
+    winner_index = int(counts.argmax())
+    if counts[winner_index] / len(pixels) < min_share:
+        return None
+
+    winner = bucket_keys[winner_index]
+    matching_pixels = pixels[np.all(buckets == winner, axis=1)]
+    return np.median(matching_pixels, axis=0).astype("uint8")
+
+
+def _mask_boundary_ring(cv2, mask):
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    outer = cv2.dilate(mask, kernel, iterations=1)
+    return cv2.subtract(outer, mask)
 
 
 def _read_image(cv2, np, path: Path, flags: int):

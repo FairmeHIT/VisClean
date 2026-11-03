@@ -12,6 +12,10 @@ def main() -> int:
         return 1
 
     app = QApplication(sys.argv)
+    font = app.font()
+    if font.pointSize() <= 0:
+        font.setPointSize(9)
+        app.setFont(font)
     window = MainWindow()
     window.showMaximized()
     return app.exec()

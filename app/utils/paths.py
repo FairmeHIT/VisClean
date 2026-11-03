@@ -22,3 +22,13 @@ def create_session_dir(base_dir: Path | None = None, source_name: str = "project
         (session_dir / child).mkdir(exist_ok=True)
     return session_dir
 
+
+def default_editable_pptx_output_path(output_dir: Path, source_stem: str | None = None) -> Path:
+    stem_source = source_stem if source_stem is not None else output_dir.name or "images"
+    stem = f"{sanitize_stem(stem_source)}_editable"
+    candidate = output_dir / f"{stem}.pptx"
+    suffix = 2
+    while candidate.exists():
+        candidate = output_dir / f"{stem}_{suffix}.pptx"
+        suffix += 1
+    return candidate
